@@ -33,20 +33,15 @@ async function recoverYesterday(event: ScheduledEvent, env: Env): Promise<void> 
     return
   }
 
-  const instanceId = `hacker-podcast-recovery-${yesterday}`
+  // 实例 ID 按小时生成，每轮尝试在 dashboard 上都是独立实例
+  const hour = new Date(event.scheduledTime).toISOString().slice(11, 13)
+  const instanceId = `hacker-podcast-recovery-${yesterday}-${hour}`
   try {
     await createWorkflow(env, { id: instanceId, params: { today: yesterday } })
   }
   catch {
-    const instance = await env.HACKER_PODCAST_WORKFLOW.get(instanceId)
-    const details = await instance.status()
-    if (details.status === 'errored' || details.status === 'terminated' || details.status === 'complete') {
-      await instance.restart()
-      console.info('restart recovery workflow:', { id: instanceId, details })
-    }
-    else {
-      console.info('recovery workflow already exists:', { id: instanceId, details })
-    }
+    const details = await (await env.HACKER_PODCAST_WORKFLOW.get(instanceId)).status()
+    console.info('recovery workflow already exists:', { id: instanceId, details })
   }
 }
 
