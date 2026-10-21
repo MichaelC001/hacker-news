@@ -106,6 +106,7 @@ vinext 在 Vite 上重新实现 Next.js API (~94% 覆盖率)，编码时需注�
 | `OPENAI_BASE_URL`                            | LLM API 基础 URL                                             | ✓    |
 | `OPENAI_API_KEY`                             | LLM API Key                                                  | ✓    |
 | `OPENAI_MODEL`                               | 主模型                                                       | ✓    |
+| `OPENAI_HEADERS`                             | 额外请求头，JSON 对象，如 `{"x-opencode-session":"..."}`     | -    |
 | `HACKER_PODCAST_WORKER_URL`                  | Worker 公开 URL                                              | ✓    |
 | `HACKER_PODCAST_R2_BUCKET_URL`               | R2 Bucket 公开 URL                                           | ✓    |
 | `OPENAI_THINKING_MODEL`                      | 思考模型（可选，用于播客/博客内容）                          | -    |

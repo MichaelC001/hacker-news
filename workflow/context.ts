@@ -9,6 +9,7 @@ export interface Env extends CloudflareEnv {
   OPENAI_BASE_URL: string
   OPENAI_API_KEY: string
   OPENAI_MODEL: string
+  OPENAI_HEADERS?: string
   OPENAI_THINKING_MODEL?: string
   OPENAI_MAX_TOKENS?: string
   JINA_KEY?: string
@@ -50,6 +51,28 @@ function parseMaxTokens(value?: string): number {
   return Number.isFinite(maxTokens) && maxTokens > 0 ? maxTokens : 4096
 }
 
+function parseHeaders(value?: string): Record<string, string> {
+  if (!value) {
+    return {}
+  }
+
+  try {
+    const headers: unknown = JSON.parse(value)
+    if (typeof headers !== 'object' || headers === null || Array.isArray(headers)) {
+      console.warn('OPENAI_HEADERS must be a JSON object')
+      return {}
+    }
+
+    return Object.fromEntries(
+      Object.entries(headers).filter((entry): entry is [string, string] => typeof entry[1] === 'string'),
+    )
+  }
+  catch (error) {
+    console.warn('parse OPENAI_HEADERS failed', error)
+    return {}
+  }
+}
+
 export function buildContext(env: Env, event: WorkflowEvent<Params>): WorkflowContext {
   const runEnv = env.NODE_ENV || 'production'
   const isDev = runEnv !== 'production'
@@ -59,6 +82,7 @@ export function buildContext(env: Env, event: WorkflowEvent<Params>): WorkflowCo
     name: 'openai',
     baseURL: env.OPENAI_BASE_URL,
     apiKey: env.OPENAI_API_KEY,
+    headers: parseHeaders(env.OPENAI_HEADERS),
   })
   const maxTokens = parseMaxTokens(env.OPENAI_MAX_TOKENS)
 
